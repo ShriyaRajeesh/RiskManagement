@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Stress Testing Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #EDEDED;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      width: 70%;
+      margin: auto;
+      background: #171717;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    }
+    canvas {
+      margin-top: 30px;
+    }
+    button {
+      background-color: #DA0037;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #E63946;
+    }
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💹 Portfolio Stress Testing Dashboard</h1>
+    <p>Simulate multiple stress scenarios and visualize risk exposure.</p>
+    
+    <div>
+      <label for="scenario">Select Scenario: </label>
+      <select id="scenario">
+        <option value="interest_rate">Interest Rate Hike</option>
+        <option value="market_crash">Market Crash</option>
+        <option value="oil_spike">Oil Price Spike</option>
+        <option value="currency_drop">Currency Devaluation</option>
+      </select>
+      <button onclick="runSimulation()">Run Simulation</button>
+    </div>
+
+    <canvas id="stressChart" width="400" height="200"></canvas>
+  </div>
+
+  <script>
+    let stressChart = null; // chart instance
+
+    // Generates random data for visualization
+    function generatePortfolioData(scenario) {
+      const labels = ["Stocks", "Bonds", "Commodities", "Real Estate", "Crypto"];
+      const baseValues = [100, 100, 100, 100, 100];
+      const shocks = {
+        interest_rate: [-10, -5, -2, -3, -8],
+        market_crash: [-30, -15, -10, -5, -40],
+        oil_spike: [-5, -2, 15, 5, -3],
+        currency_drop: [-8, 5, -2, 0, -10],
+      };
+      const changes = shocks[scenario].map(change => 100 + change + (Math.random() * 5 - 2));
+      return { labels, baseValues, changes };
+    }
+
+    function runSimulation() {
+      const scenario = document.getElementById("scenario").value;
+      const { labels, baseValues, changes } = generatePortfolioData(scenario);
+
+      // Destroy existing chart before drawing a new one
+      if (stressChart instanceof Chart) {
+        stressChart.destroy();
+      }
+
+      const ctx = document.getElementById("stressChart").getContext("2d");
+      stressChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Initial Value",
+              data: baseValues,
+              backgroundColor: "rgba(66, 245, 230, 0.6)",
+            },
+            {
+              label: "Post-Stress Value",
+              data: changes,
+              backgroundColor: "rgba(218, 0, 55, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "Portfolio Performance Under " + scenario.replace("_", " "),
+              color: "#EDEDED",
+            },
+            legend: {
+              labels: {
+                color: "#EDEDED",
+              },
+            },
+          },
+        },
+      });
+    }
+  </script>
+</body>
+</html>
